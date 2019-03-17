@@ -1,7 +1,8 @@
-// Big question: How make function newElement() = task
+
 //some sample data
 const taskData = [
-    {task: "Call mom"}
+    {id: "00-01", task: "Call mom"},
+    {task: "00-02", task: "Cook dinner"}
  ];
  
  //the database reference
@@ -23,7 +24,7 @@ const taskData = [
      }
  
     //attempt to open the database
-     let request = window.indexedDB.open("tasks", 1);
+     let request = window.indexedDB.open("task", 1);
      request.onerror = function(event) {
          console.log(event);
      };
@@ -48,13 +49,13 @@ const taskData = [
  //adds a record as entered in the form
  function add() {
      //get a reference to the fields in html
-     let task = document.querySelector("newElement").value;
+     let task = document.querySelector("#myInput").value;
      
     
     //create a transaction and attempt to add data
      var request = db.transaction(["task"], "readwrite")
      .objectStore("task")
-     .add({ });
+     .add({task: task});
  
     //when successfully added to the database
      request.onsuccess = function(event) {
@@ -79,16 +80,16 @@ const taskData = [
     var objectStore = transaction.objectStore("task");
  
     //get the data by id
-    var request = objectStore.get("");
+    var request = objectStore.get("00-03");
     
     request.onerror = function(event) {
        console.log("Unable to retrieve data from database!");
     };
     
     request.onsuccess = function(event) {
-       // Do something with the request.result!
+       // Do something with the request.myUL!
        if(request.result) {
-          console.log("task: " + request.result.task + ;
+          console.log("task: " + request.result.task);
        }
        
        else {
@@ -108,7 +109,7 @@ const taskData = [
        var cursor = event.target.result;
        
        if (cursor) {
-          console.log("Task: " + cursor.value.task + );
+          console.log("Task: " + cursor.value.task);
           addEntry(cursor.value.task);
           cursor.continue();
        }
@@ -135,11 +136,11 @@ const taskData = [
      // Your existing code unmodified...
     var iDiv = document.createElement('div');
     iDiv.className = 'entry';
-    iDiv.innerHTML = task + " " "<BR>";
-    document.querySelector("#myUL").appendChild(iDiv);
+    iDiv.innerHTML = task + "<BR>";
+    document.querySelector("task").appendChild(iDiv);
  }
  function clearList() {
-     document.querySelector("#myUL").innerHTML = "";
+     document.querySelector("task").innerHTML = "";
  }
  
  initDatabase();
