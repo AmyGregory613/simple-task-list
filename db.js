@@ -1,8 +1,8 @@
 
 //some sample data
 const taskData = [
-    {id: "00-01", task: "Call mom"},
-    {task: "00-02", task: "Cook dinner"}
+    {task: "Call mom"},
+    {task: "Cook dinner"}
  ];
  
  //the database reference
@@ -24,7 +24,7 @@ const taskData = [
      }
  
     //attempt to open the database
-     let request = window.indexedDB.open("task", 1);
+     let request = window.indexedDB.open("tasks", 1);
      request.onerror = function(event) {
          console.log(event);
      };
@@ -39,6 +39,7 @@ const taskData = [
      request.onupgradeneeded = function(event) {
        var db = event.target.result;
        var objectStore = db.createObjectStore("task", {keyPath: "task"});
+       // var objectStore = db.createObjectStore("id", {keyPath: "id"});
        
        for (var i in taskData) {
           objectStore.add(taskData[i]);
@@ -49,23 +50,25 @@ const taskData = [
  //adds a record as entered in the form
  function add() {
      //get a reference to the fields in html
-     let task = document.querySelector("#myInput").value;
-     
+     let myInput = document.querySelector("#myInput").value;
+     // let task = ("myInput");
+     console.log(myInput);
     
     //create a transaction and attempt to add data
      var request = db.transaction(["task"], "readwrite")
      .objectStore("task")
-     .add({task: task});
+     .add({task: myInput});
  
     //when successfully added to the database
      request.onsuccess = function(event) {
-         console.log(`${task} has been added to your database.`);
+         console.log(`${myInput} has been added to your database.`);
      };
  
     //when not successfully added to the database
      request.onerror = function(event) {
-     console.log(`Unable to add data\r\n${task} is already in your database! `);
+     console.log(`Unable to add data\r\n${myInput} is already in your database! `);
      }
+     newElement();
 
      readAll();
  }
@@ -80,7 +83,7 @@ const taskData = [
     var objectStore = transaction.objectStore("task");
  
     //get the data by id
-    var request = objectStore.get("00-03");
+    var request = objectStore.get("task");
     
     request.onerror = function(event) {
        console.log("Unable to retrieve data from database!");
@@ -109,7 +112,7 @@ const taskData = [
        var cursor = event.target.result;
        
        if (cursor) {
-          console.log("Task: " + cursor.value.task);
+          console.log("task: " + cursor.value.task);
           addEntry(cursor.value.task);
           cursor.continue();
        }
@@ -135,12 +138,12 @@ const taskData = [
  function addEntry(task) {
      // Your existing code unmodified...
     var iDiv = document.createElement('div');
-    iDiv.className = 'entry';
+    iDiv.className = 'myUL';
     iDiv.innerHTML = task + "<BR>";
-    document.querySelector("task").appendChild(iDiv);
+    document.querySelector("#myInput").appendChild(iDiv);
  }
  function clearList() {
-     document.querySelector("task").innerHTML = "";
+     document.querySelector("#myUL").innerHTML = "";
  }
  
  initDatabase();
