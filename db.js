@@ -70,7 +70,7 @@ const taskData = [
      }
      newElement();
 
-     readAll();
+     // readAll();
  }
  
  //not used in code example
