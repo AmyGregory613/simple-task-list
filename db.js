@@ -1,8 +1,8 @@
 
 //some sample data
 const taskData = [
-    {task: "Call mom"},
-    {task: "Cook dinner"}
+    {id:0, task: "Call mom"},
+    {id:1, task: "Cook dinner"}
  ];
  
  //the database reference
@@ -38,8 +38,7 @@ const taskData = [
     //if no database, create one and fill it with data
      request.onupgradeneeded = function(event) {
        var db = event.target.result;
-       var objectStore = db.createObjectStore("task", {keyPath: "task"});
-       // var objectStore = db.createObjectStore("id", {keyPath: "id"});
+       var objectStore = db.createObjectStore("task", {keyPath: "id", autoIncrement: true});
        
        for (var i in taskData) {
           objectStore.add(taskData[i]);
@@ -51,8 +50,6 @@ const taskData = [
  function add() {
      //get a reference to the fields in html
      let myInput = document.querySelector("#myInput").value;
-     // let task = ("myInput");
-     console.log(myInput);
     
     //create a transaction and attempt to add data
      var request = db.transaction(["task"], "readwrite")
@@ -68,37 +65,8 @@ const taskData = [
      request.onerror = function(event) {
      console.log(`Unable to add data\r\n${myInput} is already in your database! `);
      }
-     newElement();
 
-     // readAll();
- }
- 
- //not used in code example
- //reads one record by id
- function read() {
-    //get a transaction
-    var transaction = db.transaction(["task"]);
-    
-    //create the object store
-    var objectStore = transaction.objectStore("task");
- 
-    //get the data by id
-    var request = objectStore.get("task");
-    
-    request.onerror = function(event) {
-       console.log("Unable to retrieve data from database!");
-    };
-    
-    request.onsuccess = function(event) {
-       // Do something with the request.myUL!
-       if(request.result) {
-          console.log("task: " + request.result.task);
-       }
-       
-       else {
-          console.log("couldn't be found in your database!");
-       }
-    };
+     readAll();
  }
  
  //reads all the data in the database
@@ -113,7 +81,7 @@ const taskData = [
        
        if (cursor) {
           console.log("task: " + cursor.value.task);
-          addEntry(cursor.value.task);
+          addEntry(cursor.value.task, cursor.value.id);
           cursor.continue();
        }
        
@@ -124,24 +92,44 @@ const taskData = [
  }
 
  //deletes a record by id
- function remove() {
-     let delid = document.querySelector("#delid").value;
-    var request = db.transaction(["task"], "readwrite")
-    .objectStore("task")
-    .delete(delid);
+ function remove(id) {
+    var transaction = db.transaction([ 'task' ], 'readwrite').objectStore('task').delete(id);
+
     
-    request.onsuccess = function(event) {
-       console.log("Entry has been removed from your database.");
+    transaction.onsuccess = function(event) {
+      alert("Delete was successful!")  
     };
+    
+    transaction.onerror = function(event) {
+        alert("Delete was unsuccessful!")  
+    };
+    readAll();
+}
+
+
+ function addEntry(task, id) {
+     // Your existing code unmodified...
+
+    var iLi = document.createElement('li');
+    iLi.className = 'myUL';
+    iLi.id = `${id}`;
+    iLi.innerHTML = task;
+        console.log(id);
+    var span = document.createElement("SPAN");
+    var txt = document.createTextNode("\u00D7");
+    span.className = "close";
+    span.setAttribute("onclick", `remove(${id})`)
+    span.appendChild(txt);
+    iLi.appendChild(span);
+
+    if (task === '') {
+        alert("You must write something!");
+    } else {
+        document.getElementById("myUL").appendChild(iLi);
+    }
  }
 
- function addEntry(task) {
-     // Your existing code unmodified...
-    var iDiv = document.createElement('div');
-    iDiv.className = 'myUL';
-    iDiv.innerHTML = task + "<BR>";
-    document.querySelector("#myInput").appendChild(iDiv);
- }
+
  function clearList() {
      document.querySelector("#myUL").innerHTML = "";
  }
